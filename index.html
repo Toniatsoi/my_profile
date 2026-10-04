@@ -40,7 +40,7 @@ const PROFILE = {
   website: "https://toniatsoi.github.io//portfolio/index.html",
 
   // Profile picture: put photo.jpg beside this file, or paste an image URL. Leave "" to show initials.
-  photo: "",
+  photo: "photo.jpg",
 
   // Social links. Leave a link as "" to hide that icon automatically.
   socials: {
@@ -120,7 +120,7 @@ h1{font-size:1.6rem;line-height:1.2;letter-spacing:-.01em}
 .copy:hover{background:var(--line);color:var(--ink)}
 .copy.done{color:#1b9a5a}
 
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:grid;grid-template-columns:1fr;gap:10px}
 .btn{
   display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;padding:12px;border-radius:16px;
   font:inherit;font-weight:700;border:0;cursor:pointer;text-decoration:none;transition:transform .15s ease,filter .15s;
@@ -199,7 +199,6 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-off
   <section class="section">
     <div class="actions">
       <button class="btn primary" id="saveBtn"><i class="fas fa-address-book" aria-hidden="true"></i> Add to Contacts</button>
-      <button class="btn secondary" id="shareBtn"><i class="fas fa-share-nodes" aria-hidden="true"></i> Share Contact</button>
     </div>
   </section>
 
@@ -249,11 +248,14 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-off
     tiktok:["fab fa-tiktok","TikTok"], youtube:["fab fa-youtube","YouTube"]
   };
   const box = $("socials");
+  const alwaysShow = ["facebook","instagram","tiktok","youtube"]; // shown even if link is empty
   Object.keys(icons).forEach(k => {
-    const url = P.socials[k]; if (!url) return;
+    const url = P.socials[k];
+    if (!url && !alwaysShow.includes(k)) return;
     const a = document.createElement("a");
-    a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer";
     a.dataset.p = k; a.setAttribute("aria-label", icons[k][1] + " profile");
+    if (url) { a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer"; }
+    else { a.href = "#"; a.addEventListener("click", e => { e.preventDefault(); toast(icons[k][1] + " link not added yet"); }); }
     a.innerHTML = '<i class="' + icons[k][0] + '" aria-hidden="true"></i>';
     box.appendChild(a);
   });
@@ -306,16 +308,6 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-off
     toast("Contact file ready. Open it to save.");
   };
 
-  // Share (Web Share API, falls back to copying the link)
-  $("shareBtn").onclick = async () => {
-    const data = { title: P.name, text: P.name + ", " + P.title, url: location.href };
-    if (navigator.share) {
-      try { await navigator.share(data); } catch(e){ /* cancelled */ }
-    } else {
-      copy(location.href, $("shareBtn"), "Card link");
-      $("shareBtn").innerHTML = '<i class="fas fa-share-nodes" aria-hidden="true"></i> Share Contact';
-    }
-  };
 })();
 </script>
 </body>
